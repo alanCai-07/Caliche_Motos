@@ -1,0 +1,47 @@
+# ================================================================
+#  PLANTILLA DE CONFIGURACION - CALICHE MOTOS FACTURACION
+#
+#  1. Copia este archivo y renombralo a: config.properties
+#  2. Rellena los valores reales (los de tu proyecto Neon)
+#  3. NUNCA subas config.properties al repositorio
+#
+#  cp config.properties.template config.properties
+# ================================================================
+
+db.motor=postgresql
+
+# ---------------------------------------------------------------
+#  Datos de conexion Neon (ver boton "Connect" en el dashboard)
+# ---------------------------------------------------------------
+db.host=TU_HOST.neon.tech
+db.puerto=5432
+db.nombre=neondb
+db.usuario=TU_USUARIO
+db.password=TU_PASSWORD
+
+# IMPORTANTE: este debe coincidir EXACTO (mayusculas/minusculas)
+# con el nombre del schema creado en Neon.
+db.schema=caliche_motos
+
+db.zona_horaria=America/Bogota
+db.ssl=true
+db.timeout_conexion=30
+
+db.conexiones_max=10
+db.conexiones_min=2
+
+# ---------------------------------------------------------------
+#  DATOS DE LA EMPRESA (aparecen en facturas PDF)
+# ---------------------------------------------------------------
+empresa.nombre=CALICHE MOTOS
+empresa.nit=000.000.000-0
+empresa.direccion=Tu direccion aqui, Cali
+empresa.telefono=(602) 000-0000
+empresa.email=correo@calichemotos.com
+empresa.regimen=Regimen Simplificado
+
+# ---------------------------------------------------------------
+#  DIRECTORIOS DE SALIDA
+# ---------------------------------------------------------------
+rutas.facturas=reportes/facturas
+rutas.reportes=reportes
