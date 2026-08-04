@@ -25,13 +25,14 @@ public class MenuPrincipalFrame extends JFrame {
     private static final Color VERDE      = new Color(30, 130, 76);
     private static final Color NARANJA    = new Color(200, 100, 20);
     private static final Color ROJO_OSCURO = new Color(140, 30, 30);
-    private static final Color GRIS       = new Color(80, 80, 80);
 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel panelContenido = new JPanel(cardLayout);
+    private final NuevaVentaFrame nuevaVentaFrame;
 
     public MenuPrincipalFrame() {
         String cajero = SistemaFacturacion.getInstance().getCajeroActivo().getNombre();
+        this.nuevaVentaFrame = new NuevaVentaFrame(this);
         setTitle("Caliche Motos - Menu Principal  |  Usuario: " + cajero);
         setSize(1100, 720);
         setMinimumSize(new Dimension(950, 650));
@@ -69,7 +70,7 @@ public class MenuPrincipalFrame extends JFrame {
         panelContenido.setBackground(Color.WHITE);
         panelContenido.add(crearVistaMenu(cajero), "menu");
         panelContenido.add(crearVistaModulo(new InventarioFrame(), "Inventario"), "inventario");
-        panelContenido.add(crearVistaModulo(new NuevaVentaFrame(this), "Nueva Venta"), "nuevaVenta");
+        panelContenido.add(crearVistaModulo(nuevaVentaFrame, "Nueva Venta"), "nuevaVenta");
         panelContenido.add(crearVistaModulo(new ClienteFrame(), "Clientes"), "clientes");
         panelContenido.add(crearVistaModulo(new ReportesFrame(), "Reportes"), "reportes");
         panelContenido.add(crearVistaModulo(new BuscarFacturaFrame(), "Buscar Factura"), "buscarFactura");
@@ -155,18 +156,6 @@ public class MenuPrincipalFrame extends JFrame {
         return panel;
     }
 
-    private JPanel crearVistaPendiente(String nombre, String detalle) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-
-        JLabel lbl = new JLabel("<html><center><b>" + nombre + "</b><br><br>"
-                + "<span style='font-size:11px;color:#888'>" + detalle + "</span></center></html>",
-                SwingConstants.CENTER);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        panel.add(lbl, BorderLayout.CENTER);
-        return panel;
-    }
-
     private void cerrarSesion() {
         int r = JOptionPane.showConfirmDialog(this,
                 "Desea cerrar la sesion?", "Confirmar",
@@ -210,6 +199,9 @@ public class MenuPrincipalFrame extends JFrame {
 
     private void mostrarVista(String nombreVista) {
         cardLayout.show(panelContenido, nombreVista);
+        if ("nuevaVenta".equals(nombreVista)) {
+            nuevaVentaFrame.recargarTecnicos();
+        }
     }
 
     private JButton botonMenu(String titulo, Color color) {

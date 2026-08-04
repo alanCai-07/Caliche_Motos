@@ -43,20 +43,50 @@ listar los 5 repuestos de prueba.
 
 ```
 calichemotos/
-├── db/                  ConfiguracionApp, ConexionDB (igual arquitectura que supermercado)
+├── db/                  ConfiguracionApp, ConexionDB (SET search_path explicito)
 ├── modelo/              Repuesto, Cliente, Cajero, Factura, ItemFactura, EstadoFactura
-├── dao/                 RepuestoDAO (sin schema hardcodeado - usa currentSchema de la conexion)
-├── servicio/            Inventario
-└── Main.java            Prueba de conexion
+├── dao/                 RepuestoDAO, CajeroDAO, ClienteDAO, FacturaDAO (sin schema hardcodeado)
+├── pago/                MetodoPago, PagoEfectivo, PagoTarjeta
+├── reporte/             GeneradorReportePDF (factura + 3 reportes de ventas)
+├── servicio/            Inventario, SistemaFacturacion (login, crear factura, cobrar, anular)
+├── util/                GestorImagenes (guardar/resolver fotos de repuestos)
+├── ui/                  AppIcon, UIUtils, LoginFrame, MenuPrincipalFrame,
+│                        InventarioFrame (CRUD completo modo admin), ClienteFrame,
+│                        NuevaVentaFrame, ReportesFrame, BuscarFacturaFrame
+└── Main.java            Lanza LoginFrame (flujo completo de punta a punta)
 ```
 
-## Pendiente (fase 2)
+## Como ejecutar
 
-- ClienteDAO, CajeroDAO, FacturaDAO (calcados del supermercado, renombrando producto -> repuesto)
-- SistemaFacturacion (servicio Singleton)
-- UI Swing: LoginFrame, MenuPrincipalFrame, InventarioFrame, NuevaVentaFrame, ReportesFrame, BuscarFacturaFrame
-- GeneradorReportePDF y GeneradorReporteExcel con branding de Caliche Motos
-- Decidir si "modelo_compatible" se queda como texto libre o se separa en tabla propia
+Desde VS Code: abre `Main.java` y usa el boton Run (usa `.vscode/launch.json`).
+
+Usuario de prueba (del script SQL): "Administrador", contrasena "admin123" (rol ADMIN).
+
+Modulos funcionales:
+- **Inventario**: en modo administrador permite agregar, editar,
+  ajustar stock, activar/desactivar repuestos, y subir una imagen
+  (se guarda en `imagenes/repuestos/` con el codigo del repuesto como
+  nombre de archivo, y la ruta relativa queda en `ruta_imagen`).
+  En modo cajero (rol CAJERO) queda en solo lectura.
+- **Nueva Venta**: punto de venta completo, genera PDF de la factura.
+- **Clientes**: registrar y buscar clientes por NIT.
+- **Reportes**: ventas del dia, top 20 repuestos vendidos, ventas por
+  usuario, en PDF.
+- **Buscar Factura**: historial completo, filtro, detalle, PDF, anular
+  y cambiar estado (solo admin).
+
+## Pendiente (fase 6 - opcional)
+
+- Importador de repuestos desde Excel (equivalente a
+  `ImportadorProductosExcel` del supermercado).
+- Reportes tambien en Excel (`GeneradorReporteExcel`, Apache POI ya
+  esta en el pom.xml).
+- Dashboard con graficos (JFreeChart ya esta en el pom.xml).
+- Ticket termico 80mm (opcional, si se va a imprimir en impresora POS).
+- Mostrar la foto del repuesto en la tabla de Nueva Venta (columna con
+  miniatura), igual que en el supermercado.
+- Decidir si "modelo_compatible" se queda como texto libre o se separa
+  en tabla propia (`repuesto_modelos`).
 
 ## Diferencias intencionales respecto al repo Supermercado
 

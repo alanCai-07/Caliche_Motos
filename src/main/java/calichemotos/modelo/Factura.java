@@ -17,15 +17,17 @@ public class Factura {
     private List<ItemFactura> items;
     private EstadoFactura     estado;
     private String            metodoPago;
+    private String            tecnicoAsignado;
 
     public Factura(String numero, Cliente cliente, Cajero cajero) {
-        this.numero     = numero;
-        this.fecha      = LocalDateTime.now();
-        this.cliente    = cliente;
-        this.cajero     = cajero;
-        this.items      = new ArrayList<>();
-        this.estado     = EstadoFactura.PENDIENTE;
-        this.metodoPago = "EFECTIVO";
+        this.numero          = numero;
+        this.fecha           = LocalDateTime.now();
+        this.cliente         = cliente;
+        this.cajero          = cajero;
+        this.items           = new ArrayList<>();
+        this.estado          = EstadoFactura.PENDIENTE;
+        this.metodoPago      = "EFECTIVO";
+        this.tecnicoAsignado = null;
     }
 
     public void agregarItem(ItemFactura item) {
@@ -54,10 +56,12 @@ public class Factura {
     public Cliente           getCliente()    { return cliente; }
     public Cajero            getCajero()     { return cajero; }
     public List<ItemFactura> getItems()      { return Collections.unmodifiableList(items); }
-    public EstadoFactura     getEstado()     { return estado; }
-    public String            getMetodoPago() { return metodoPago; }
+    public EstadoFactura     getEstado()         { return estado; }
+    public String            getMetodoPago()     { return metodoPago; }
+    public String            getTecnicoAsignado() { return tecnicoAsignado; }
 
-    public void setMetodoPago(String m) { this.metodoPago = m; }
+    public void setMetodoPago(String m)       { this.metodoPago = m; }
+    public void setTecnicoAsignado(String t)  { this.tecnicoAsignado = t; }
 
     @Override
     public String toString() {

@@ -24,7 +24,7 @@ DROP TYPE IF EXISTS rol_cajero      CASCADE;
 CREATE TYPE turno_enum     AS ENUM ('MAÑANA', 'TARDE', 'NOCHE');
 CREATE TYPE estado_factura AS ENUM ('PENDIENTE', 'PAGADA', 'ANULADA');
 CREATE TYPE metodo_pago    AS ENUM ('EFECTIVO', 'TARJETA_DEBITO', 'TARJETA_CREDITO', 'NEQUI', 'DAVIPLATA');
-CREATE TYPE rol_cajero     AS ENUM ('ADMIN', 'CAJERO');
+CREATE TYPE rol_cajero     AS ENUM ('ADMIN', 'CAJERO', 'TECNICO');
 
 -- ================================================================
 --  CATEGORIAS (motor, frenos, suspension, electrico, etc.)
@@ -88,6 +88,7 @@ CREATE TABLE facturas (
     fecha           TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     nit_cliente     VARCHAR(20)     NOT NULL,
     id_cajero       VARCHAR(20)     NOT NULL,
+    id_tecnico      VARCHAR(20)     NULL,
     estado          estado_factura  NOT NULL DEFAULT 'PENDIENTE',
     subtotal        NUMERIC(12,2)   NOT NULL DEFAULT 0.00,
     iva             NUMERIC(12,2)   NOT NULL DEFAULT 0.00,
@@ -99,6 +100,9 @@ CREATE TABLE facturas (
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_fact_cajero
         FOREIGN KEY (id_cajero) REFERENCES cajeros(id_cajero)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_fact_tecnico
+        FOREIGN KEY (id_tecnico) REFERENCES cajeros(id_cajero)
         ON UPDATE CASCADE ON DELETE RESTRICT
 );
 

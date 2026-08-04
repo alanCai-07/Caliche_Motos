@@ -10,8 +10,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -34,7 +32,9 @@ import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import calichemotos.dao.CajeroDAO;
 import calichemotos.dao.ClienteDAO;
+import calichemotos.modelo.Cajero;
 import calichemotos.modelo.Cliente;
 import calichemotos.modelo.Factura;
 import calichemotos.modelo.ItemFactura;
@@ -51,6 +51,7 @@ public class NuevaVentaFrame extends JFrame {
     private final JFrame parent;
     private final SistemaFacturacion sistema = SistemaFacturacion.getInstance();
     private final ClienteDAO clienteDAO = new ClienteDAO();
+    private final CajeroDAO cajeroDAO = new CajeroDAO();
 
     private Factura facturaActual;
     private Cliente clienteActual;
@@ -70,6 +71,7 @@ public class NuevaVentaFrame extends JFrame {
     private DefaultTableModel modeloItems;
     private JLabel lblSubtotal, lblIva, lblTotal;
     private JComboBox<String> cmbPago;
+    private JComboBox<String> cmbTecnico;
     private JTextField txtMontoPago;
     private JButton btnCobrar;
     private JPanel panelCarritoBorder;
@@ -308,6 +310,8 @@ public class NuevaVentaFrame extends JFrame {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         cmbPago = new JComboBox<>(new String[] { "EFECTIVO", "TARJETA_DEBITO", "TARJETA_CREDITO" });
+        cmbTecnico = new JComboBox<>();
+        cargarTecnicosFactura();
         txtMontoPago = new JTextField("0", 12);
         UIUtils.estilizarCampo(txtMontoPago);
         btnCobrar = new JButton("COBRAR");
@@ -320,10 +324,14 @@ public class NuevaVentaFrame extends JFrame {
         gc.gridx = 1; gc.weightx = 0.65;
         panelCobro.add(cmbPago, gc);
         gc.gridx = 0; gc.gridy = 1; gc.weightx = 0.35;
+        panelCobro.add(new JLabel("Tecnico asignado:"), gc);
+        gc.gridx = 1; gc.weightx = 0.65;
+        panelCobro.add(cmbTecnico, gc);
+        gc.gridx = 0; gc.gridy = 2; gc.weightx = 0.35;
         panelCobro.add(new JLabel("Monto recibido:"), gc);
         gc.gridx = 1; gc.weightx = 0.65;
         panelCobro.add(txtMontoPago, gc);
-        gc.gridx = 0; gc.gridy = 2; gc.gridwidth = 2;
+        gc.gridx = 0; gc.gridy = 3; gc.gridwidth = 2;
         panelCobro.add(btnCobrar, gc);
 
         JPanel inferior = new JPanel(new BorderLayout(4, 4));
@@ -620,6 +628,30 @@ public class NuevaVentaFrame extends JFrame {
                 });
     }
 
+    public void recargarTecnicos() {
+        cargarTecnicosFactura();
+    }
+
+    private void cargarTecnicosFactura() {
+        cmbTecnico.removeAllItems();
+        cmbTecnico.addItem("Sin tecnico");
+        try {
+            List<Cajero> tecnicos = cajeroDAO.listarPorRol("TECNICO");
+            for (Cajero t : tecnicos)
+                cmbTecnico.addItem(t.getNombre() + " (" + t.getId() + ")");
+        } catch (Exception ex) {
+            System.err.println("[TEC] Error cargando tecnicos: " + ex.getMessage());
+        }
+    }
+
+    private String obtenerTecnicoSeleccionadoId() {
+        String seleccion = (String) cmbTecnico.getSelectedItem();
+        if (seleccion == null || seleccion.equals("Sin tecnico"))
+            return null;
+        int idx = seleccion.lastIndexOf('(');
+        return idx >= 0 ? seleccion.substring(idx + 1, seleccion.length() - 1) : null;
+    }
+
     // ---- Cobro ----
     private void procesarCobro() {
         if (facturaActual == null || facturaActual.getItems().isEmpty()) {
@@ -636,6 +668,10 @@ public class NuevaVentaFrame extends JFrame {
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        String tecnicoId = obtenerTecnicoSeleccionadoId();
+        if (tecnicoId != null)
+            facturaActual.setTecnicoAsignado(tecnicoId);
 
         String tipoPago = (String) cmbPago.getSelectedItem();
         MetodoPago pago;

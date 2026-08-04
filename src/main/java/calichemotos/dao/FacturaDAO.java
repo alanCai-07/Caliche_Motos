@@ -19,20 +19,25 @@ public class FacturaDAO {
             String sqlF = """
                     INSERT INTO facturas
                       (numero_factura, fecha, nit_cliente, id_cajero,
-                       estado, subtotal, iva, total, metodo_pago)
+                       id_tecnico, estado, subtotal, iva, total, metodo_pago)
                     VALUES (?, NOW(), ?, ?,
-                            ?::estado_factura, ?, ?, ?,
+                            ?, ?::estado_factura, ?, ?, ?,
                             ?::metodo_pago)
                     """;
             try (PreparedStatement ps = con.prepareStatement(sqlF)) {
                 ps.setString(1, factura.getNumero());
                 ps.setString(2, factura.getCliente().getNit());
                 ps.setString(3, factura.getCajero().getId());
-                ps.setString(4, factura.getEstado().name());
-                ps.setDouble(5, factura.calcularSubtotal());
-                ps.setDouble(6, factura.calcularIva());
-                ps.setDouble(7, factura.calcularTotal());
-                ps.setString(8, factura.getMetodoPago());
+                if (factura.getTecnicoAsignado() != null && !factura.getTecnicoAsignado().isBlank()) {
+                    ps.setString(4, factura.getTecnicoAsignado());
+                } else {
+                    ps.setNull(4, Types.VARCHAR);
+                }
+                ps.setString(5, factura.getEstado().name());
+                ps.setDouble(6, factura.calcularSubtotal());
+                ps.setDouble(7, factura.calcularIva());
+                ps.setDouble(8, factura.calcularTotal());
+                ps.setString(9, factura.getMetodoPago());
                 ps.executeUpdate();
             }
 
@@ -106,6 +111,7 @@ public class FacturaDAO {
                 Cajero j = cajeroDAO.buscar(rs.getString("id_cajero"));
                 Factura f = new Factura(numero, c, j);
                 f.setMetodoPago(rs.getString("metodo_pago"));
+                f.setTecnicoAsignado(rs.getString("id_tecnico"));
                 return Optional.of(f);
             }
         }

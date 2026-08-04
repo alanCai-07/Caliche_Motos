@@ -18,7 +18,9 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 
+import calichemotos.dao.CajeroDAO;
 import calichemotos.db.ConfiguracionApp;
+import calichemotos.modelo.Cajero;
 import calichemotos.modelo.Factura;
 import calichemotos.modelo.ItemFactura;
 
@@ -85,13 +87,26 @@ public class GeneradorReportePDF {
         Table datosGrid = new Table(new float[] { 1, 1 })
                 .setWidth(UnitValue.createPercentValue(100))
                 .setMarginTop(6).setMarginBottom(6);
+
+        CajeroDAO cajeroDAO = new CajeroDAO();
+        String tecnicoNombre = "Sin tecnico";
+        String tecnicoTurno = "-";
+        if (factura.getTecnicoAsignado() != null && !factura.getTecnicoAsignado().isBlank()) {
+            Cajero tecnico = cajeroDAO.buscar(factura.getTecnicoAsignado());
+            if (tecnico != null) {
+                tecnicoNombre = tecnico.getNombre();
+                tecnicoTurno = tecnico.getTurno();
+            }
+        }
+
         datosGrid.addCell(bloqueInfo("DATOS DEL CLIENTE",
                 "Nombre : " + factura.getCliente().getNombre(),
                 "NIT/CC : " + factura.getCliente().getNit(),
                 "Tel    : " + factura.getCliente().getTelefono()));
         datosGrid.addCell(bloqueInfo("ATENDIDO POR",
-                "Nombre : " + factura.getCajero().getNombre(),
-                "Turno  : " + factura.getCajero().getTurno(),
+                "Cajero : " + factura.getCajero().getNombre(),
+                "Tecnico: " + tecnicoNombre,
+                "Turno  : " + tecnicoTurno,
                 "Pago   : " + factura.getMetodoPago()));
         doc.add(datosGrid);
 

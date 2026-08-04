@@ -9,6 +9,18 @@ public class Cajero {
     private boolean activo;
     private String  rol;
 
+    public static String hashPassword(String textoPlano) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(textoPlano.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            return textoPlano;
+        }
+    }
+
     public Cajero(String id, String nombre, String turno, String contrasenaHash) {
         this.id             = id;
         this.nombre         = nombre;

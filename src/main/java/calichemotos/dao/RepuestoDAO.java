@@ -102,6 +102,66 @@ public class RepuestoDAO {
         }
     }
 
+    public void actualizar(Repuesto r, int idCategoria) throws SQLException {
+        String sql = """
+                UPDATE repuestos
+                   SET nombre = ?, referencia_oem = ?, marca = ?, modelo_compatible = ?,
+                       precio = ?, stock = ?, id_categoria = ?, ruta_imagen = ?
+                 WHERE id_repuesto = ?
+                """;
+        try (PreparedStatement ps = ConexionDB.getConexion().prepareStatement(sql)) {
+            ps.setString(1, r.getNombre());
+            ps.setString(2, r.getReferenciaOem());
+            ps.setString(3, r.getMarca());
+            ps.setString(4, r.getModeloCompatible());
+            ps.setDouble(5, r.getPrecio());
+            ps.setInt(6, r.getStock());
+            ps.setInt(7, idCategoria);
+            ps.setString(8, r.getRutaImagen());
+            ps.setString(9, r.getId());
+            ps.executeUpdate();
+        }
+    }
+
+    public void cambiarActivo(String id, boolean activo) throws SQLException {
+        String sql = "UPDATE repuestos SET activo = ? WHERE id_repuesto = ?";
+        try (PreparedStatement ps = ConexionDB.getConexion().prepareStatement(sql)) {
+            ps.setBoolean(1, activo);
+            ps.setString(2, id);
+            ps.executeUpdate();
+        }
+    }
+
+    public boolean existe(String id) throws SQLException {
+        String sql = "SELECT 1 FROM repuestos WHERE id_repuesto = ?";
+        try (PreparedStatement ps = ConexionDB.getConexion().prepareStatement(sql)) {
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        }
+    }
+
+    /** Devuelve id_categoria -> nombre, para poblar combos en la UI. */
+    public java.util.Map<Integer, String> listarCategorias() throws SQLException {
+        java.util.Map<Integer, String> cats = new java.util.LinkedHashMap<>();
+        String sql = "SELECT id_categoria, nombre FROM categorias ORDER BY nombre";
+        try (Statement st = ConexionDB.getConexion().createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next())
+                cats.put(rs.getInt("id_categoria"), rs.getString("nombre"));
+        }
+        return cats;
+    }
+
+    public void insertarCategoria(String nombre, double impuesto) throws SQLException {
+        String sql = "INSERT INTO categorias (nombre, impuesto) VALUES (?, ?)";
+        try (PreparedStatement ps = ConexionDB.getConexion().prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setDouble(2, impuesto);
+            ps.executeUpdate();
+        }
+    }
+
     public void actualizarStock(String id, int nuevoStock) throws SQLException {
         String sql = "UPDATE repuestos SET stock = ? WHERE id_repuesto = ?";
         try (PreparedStatement ps = ConexionDB.getConexion().prepareStatement(sql)) {
